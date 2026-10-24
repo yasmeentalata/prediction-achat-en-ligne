@@ -2,8 +2,7 @@
 
 Projet personnel de machine learning visant à prédire si une session de navigation sur un site e-commerce aboutira à un achat.
 
-📓 [Consulter le notebook et ses résultats](prediction_achat.ipynb)
-
+📓 [Consulter le notebook et ses résultats](prediction_achat_ecommerce.ipynb)
 ## Données
 
 Jeu de données : **Online Shoppers Purchasing Intention**, UCI.
@@ -72,7 +71,7 @@ Avec ces hypothèses, le coût simulé diminue de **19,5 %** par rapport à la r
 
 ## Exécuter le projet
 
-Ouvrir `prediction_achat.ipynb` dans Google Colab, puis exécuter les cellules dans l’ordre. Les données sont téléchargées automatiquement depuis UCI ; une connexion Internet est nécessaire.
+Ouvrir `prediction_achat_ecommerce.ipynb` dans Google Colab, puis exécuter les cellules dans l’ordre. Les données sont téléchargées automatiquement depuis UCI ; une connexion Internet est nécessaire.
 
 Bibliothèques utilisées : **pandas, scikit-learn et Matplotlib**.
 
