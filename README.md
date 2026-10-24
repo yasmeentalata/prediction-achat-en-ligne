@@ -1,66 +1,83 @@
-# prediction-achat-en-ligne
+# Prédiction d’achat en e-commerce
 
-Projet personnel d’apprentissage du machine learning : prédire si une session de navigation sur un site marchand
-aboutit à un achat.
+Projet personnel de machine learning visant à prédire si une session de navigation sur un site e-commerce aboutira à un achat.
+
+📓 [Consulter le notebook et ses résultats](prediction_achat.ipynb)
 
 ## Données
 
-Dataset : Online Shoppers Purchasing Intention, UCI
-Auteurs : C. Sakar et Y. Kastro (2018)
-Source : https://doi.org/10.24432/C5F88Q
-Licence des données : CC BY 4.0
+Jeu de données : **Online Shoppers Purchasing Intention**, UCI.
+- 12 330 sessions de navigation.
+- 17 variables explicatives disponibles et une cible : `Revenue`.
+- Environ 15,5 % de sessions avec achat.
+- Aucune valeur manquante.
 
-- 12 330 sessions.
-- 17 variables explicatives disponibles et une cible : Revenue
-- Environ 15,5 % des sessions aboutissent à un achat
-- Chargement automatique des données depuis UCI
+Six variables sont utilisées pour cette première étude :
+`Administrative`, `Informational`, `ProductRelated`,
+`BounceRates`, `ExitRates` et `SpecialDay`.
 
-Cette première version utilise six variables : Administrative, Informational, ProductRelated, BounceRates, ExitRates et SpecialDay.
+Source : C. O. Sakar et Y. Kastro (2018).
+https://doi.org/10.24432/C5F88Q
+Licence des données : CC BY 4.0.
 
 ## Méthode
 
-- Exploration des données et vérification des valeurs manquantes
-- Comparaison avec une règle prédisant toujours « pas d’achat »
-- Standardisation et régression logistique avec class_weight="balanced", regroupées dans une pipeline
-- Séparation stratifiée : 60 % apprentissage, 20 % validation et 20 % test
-- Comparaison des seuils 0,3, 0,5 et 0,7 sur la validation
+- Modèle de référence prédisant systématiquement « pas d’achat ».
+- Régression logistique avec standardisation, avec et sans pondération des classes.
+- Découpage stratifié : 60 % apprentissage, 20 % validation, 20 % test.
+- Comparaison de trois seuils sur la validation : 0,3, 0,5 et 0,7.
+- Simulation de coûts : 2 € par faux positif et 10 € par faux négatif.
+- Analyse des coefficients et de la corrélation entre variables.
+- Comparaison avec un arbre de décision de profondeur maximale 3.
 
-## Choix du seuil
+Les premiers essais ont utilisé le découpage initial 80 % entraînement / 20 % test. L’ensemble d’entraînement a ensuite été partagé pour constituer la validation.
 
-Pour illustrer une décision fondée sur le coût des erreurs, j’utilise deux hypothèses fictives :
+## Comparaison sur la validation
 
-- Faux positif : coût de 2 €.
-- Faux négatif : coût de 10 €.
+Résultats au seuil de 0,5 :
 
-Le seuil 0,5 minimise le coût sur la validation parmi les trois seuils comparés.
+| Modèle | Précision | Rappel | Coût simulé |
+|---|---:|---:|---:|
+| Régression logistique pondérée | 23,0 % | 79,5 % | 2 814 € |
+| Arbre de décision pondéré | 23,6 % | 74,0 % | 2 818 € |
 
-## Résultats sur le test
+Les coûts sont presque identiques. La régression logistique détecte davantage d’achats, mais produit plus de fausses alertes.
+
+Le retrait de `BounceRates`, fortement corrélée à `ExitRates` (0,91 sur l’apprentissage), modifie peu les résultats de validation.
+
+## Résultats sur le test exploratoire
+
+Modèle retenu : **régression logistique pondérée, seuil de 0,5**.
 
 | Indicateur | Résultat |
-| Achats correctement repérés | 269 sur 382 |
-| Rappel des achats | 70,4 % |
-| Précision des achats | 21,7 % |
+|---|---:|
+| Achats détectés | 269 sur 382 |
+| Rappel | 70,4 % |
+| Précision | 21,7 % |
 | Faux positifs | 973 |
 | Faux négatifs | 113 |
 | Coût simulé du modèle | 3 076 € |
-| Coût de la règle « toujours pas d’achat » | 3 820 € |
+| Coût simulé de la règle « toujours pas d’achat » | 3 820 € |
 
-La réduction du coût simulé est de 19,5 % par rapport à cette règle simple.
+Avec ces hypothèses, le coût simulé diminue de **19,5 %** par rapport à la règle « toujours pas d’achat ». Il ne s’agit pas d’économies réellement mesurées.
 
 ## Limites
 
-- Le modèle produit encore beaucoup de fausses alertes.
-- Les coûts sont fictifs : aucune économie réelle en entreprise n’est démontrée.
-- Le test a été consulté lors des premiers essais : les résultats restent exploratoires.
-- Les scores du modèle pondéré ne sont pas nécessairement des probabilités d’achat bien calibrées.
-- Une utilisation en temps réel nécessiterait de vérifier que chaque variable est disponible au moment de la prédiction.
+- La précision reste faible et les fausses alertes nombreuses.
+- Les coûts d’erreur sont fictifs.
+- Le test a été consulté lors des premiers essais : l’évaluation reste exploratoire.
+- Les résultats reposent sur six variables et un seul découpage.
+- Les scores du modèle pondéré ne sont pas nécessairement des probabilités bien calibrées.
+- Une utilisation en temps réel nécessiterait de vérifier la disponibilité des variables au moment de prédire.
 
 ## Exécuter le projet
 
-Ouvrir prediction_achat.ipynb dans Google Colab et exécuter les cellules dans l’ordre.
+Ouvrir `prediction_achat.ipynb` dans Google Colab, puis exécuter les cellules dans l’ordre. Les données sont téléchargées automatiquement depuis UCI ; une connexion Internet est nécessaire.
 
-Une connexion Internet est nécessaire pour télécharger les données. Aucun import manuel du CSV n’est requis.
+Bibliothèques utilisées : **pandas, scikit-learn et Matplotlib**.
 
-## Outils
+## Pistes d’amélioration
 
-Python, pandas, scikit-learn, Matplotlib, Google Colab et GitHub.
+- Évaluer la stabilité des résultats par validation croisée.
+- Étudier d’autres variables disponibles au moment de la prédiction.
+- Définir les coûts d’erreur à partir d’un besoin métier réel.
